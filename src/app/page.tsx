@@ -44,7 +44,7 @@ export default function Home() {
               className="rounded-full px-8"
               href="https://ko-fi.com/axolotdev"
             >
-              Buy a Cofe <Heart className="ml-2 hover:text-red-600" />
+              Buy a Coffee <Heart className="ml-2 hover:text-red-600" />
             </Button>
           </div>
         </div>
