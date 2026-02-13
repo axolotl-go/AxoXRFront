@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "@/components/button";
 import { Input } from "@/components/ui/input";
+import { IsLogin, SignIn } from "@/services/login.service";
+import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
@@ -11,17 +13,47 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
+
+    try {
+      await toast.promise(
+        SignIn({
+          email: email,
+          password: password,
+        }),
+        {
+          loading: "Iniciando Sesion",
+          success: "Login iniciado correctamente",
+          error: "Error al intentar logearse",
+        },
+      );
+      router.push("/dashboard");
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
-      router.push("/signup");
-    }, 1500);
+    }
   };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await IsLogin();
+        if (res) {
+          router.push("/dashboard");
+        }
+        router.push("/dashboard");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkLogin();
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">

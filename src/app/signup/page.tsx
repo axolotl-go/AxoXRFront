@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Button from "@/components/button";
 import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
+import { IsLogin, SignUp } from "@/services/login.service";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
@@ -12,17 +14,46 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
+
+    try {
+      await toast.promise(
+        SignUp({
+          username: Username,
+          email: email,
+          password: password,
+        }),
+        {
+          loading: "Creando cuenta",
+          success: "Cuenta creada correctamente",
+          error: "Error al crear la cuenta",
+        },
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
-      router.push("/signup");
-    }, 1500);
+    }
   };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await IsLogin();
+        if (res) {
+          router.push("/dashboard");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkLogin();
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
