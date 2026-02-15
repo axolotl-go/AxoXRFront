@@ -1,59 +1,71 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Button from "@/components/button";
 import { Input } from "@/components/ui/input";
 import { IsLogin, SignIn } from "@/services/login.service";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Page() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { isLogin, loading } = useAuth();
+
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoading) return;
+
     setIsLoading(true);
 
     try {
-      await toast.promise(
-        SignIn({
-          email: email,
-          password: password,
-        }),
-        {
-          loading: "Iniciando Sesion",
-          success: "Login iniciado correctamente",
-          error: "Error al intentar logearse",
-        },
-      );
+      await toast.promise(SignIn(form), {
+        loading: "Iniciando sesión...",
+        success: "Bienvenido",
+        error: "Credenciales incorrectas",
+      });
+
       router.push("/dashboard");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const router = useRouter();
-
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const res = await IsLogin();
-        if (res) {
-          router.push("/dashboard");
-        }
-        router.push("/dashboard");
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    checkLogin();
-  }, []);
+    if (!loading && isLogin) {
+      router.push("/dashboard");
+    }
+  }, [loading, isLogin, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isLogin) {
+    return null;
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -78,8 +90,8 @@ export default function Page() {
               </label>
               <Input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
                 placeholder="name@example.com"
                 className="bg-white/50 dark:bg-black/20"
                 required
@@ -103,8 +115,8 @@ export default function Page() {
               <div className="relative">
                 <Input
                   type={show ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={form.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
                   placeholder="Enter your password"
                   className="bg-white/50 dark:bg-black/20 pr-10"
                   required

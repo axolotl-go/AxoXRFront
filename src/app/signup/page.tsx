@@ -1,59 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import Button from "@/components/button";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
-import { IsLogin, SignUp } from "@/services/login.service";
+import { SignUp } from "@/services/login.service";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Page() {
-  const [Username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const router = useRouter();
   const [show, setShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const { isLogin, loading } = useAuth();
+
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoading) return;
     setIsLoading(true);
 
     try {
-      await toast.promise(
-        SignUp({
-          username: Username,
-          email: email,
-          password: password,
-        }),
-        {
-          loading: "Creando cuenta",
-          success: "Cuenta creada correctamente",
-          error: "Error al crear la cuenta",
-        },
-      );
+      await toast.promise(SignUp(form), {
+        loading: "Creando cuenta...",
+        success: "Cuenta creada correctamente",
+        error: "Error al crear cuenta",
+      });
+      router.push("/dashboard");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const router = useRouter();
-
   useEffect(() => {
-    const checkLogin = async () => {
-      try {
-        const res = await IsLogin();
-        if (res) {
-          router.push("/dashboard");
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    checkLogin();
-  }, []);
+    if (!loading && isLogin) {
+      router.push("/dashboard");
+    }
+  }, [loading, isLogin, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isLogin) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -69,31 +78,31 @@ export default function Page() {
         </header>
         {/* Form Card */}
         <div className="glass-panel p-8 rounded-2xl shadow-2xl shadow-primary/5">
-          <form onSubmit={handleLogin} className="space-y-6">
-            {/* Email */}
-
+          <form onSubmit={handleSignup} className="space-y-6">
+            {/* Username */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
                 Username
               </label>
               <Input
                 type="text"
-                value={Username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="name example"
+                value={form.username}
+                onChange={(e) => handleChange("username", e.target.value)}
+                placeholder="Username"
                 className="bg-white/50 dark:bg-black/20"
                 required
               />
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300 ml-1">
                 Email Address
               </label>
               <Input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={form.email}
+                onChange={(e) => handleChange("email", e.target.value)}
                 placeholder="name@example.com"
                 className="bg-white/50 dark:bg-black/20"
                 required
@@ -117,8 +126,8 @@ export default function Page() {
               <div className="relative">
                 <Input
                   type={show ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={form.password}
+                  onChange={(e) => handleChange("password", e.target.value)}
                   placeholder="Enter your password"
                   className="bg-white/50 dark:bg-black/20 pr-10"
                   required

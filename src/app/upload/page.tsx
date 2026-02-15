@@ -2,9 +2,11 @@
 import Button from "@/components/button";
 import { UploadZone } from "@/components/upload-zone";
 import { Badge } from "@/components/ui/badge";
-import { FileBox, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { FileBox, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 type UploadItem = {
   id: number;
@@ -14,8 +16,16 @@ type UploadItem = {
   status: "uploading" | "ready";
 };
 
-export default function page() {
+export default function Page() {
   const [queue, setQueue] = useState<UploadItem[]>([]);
+  const { isLogin, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isLogin) {
+      router.push("/login");
+    }
+  }, [loading, isLogin, router]);
 
   function handleFile(file: File) {
     const item: UploadItem = {
@@ -47,6 +57,18 @@ export default function page() {
         ),
       );
     }, 3200);
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isLogin) {
+    return null;
   }
 
   return (

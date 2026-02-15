@@ -1,0 +1,19 @@
+{
+"nav" : [
+  {
+    "linkName": "Home",
+    "link": "/",
+    "icon": "House"
+  },
+  {
+    "linkName": "Account",
+    "link": "/account",
+    "icon": "CircleUser"
+  },
+  {
+    "linkName": "Config",
+    "link": "/config",
+    "icon": "Bolt"
+  }
+]
+}
