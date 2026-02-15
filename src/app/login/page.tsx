@@ -40,8 +40,7 @@ export default function Page() {
         success: "Bienvenido",
         error: "Credenciales incorrectas",
       });
-
-      router.push("/dashboard");
+      window.location.reload();
     } catch (error) {
       console.error(error);
     } finally {

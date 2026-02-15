@@ -6,38 +6,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// Mock data for now - typically better to fetch this from an API
-const models = [
-  {
-    id: 1,
-    name: "El señor de la noche mitad hombre mitad animal",
-    image:
-      "https://i.all3dp.com/workers/images/fit=scale-down,w=1920,h=1080,gravity=0.5x0.5,format=auto/wp-content/uploads/2023/12/21150547/Batman.jpg",
-    updated: "Oct 24, 2023",
-  },
-  {
-    id: 2,
-    name: "Mi waifu la zelda LoL XD",
-    image:
-      "https://media.sketchfab.com/models/bf99374334a64291ae2876c83269adb6/thumbnails/42a694b9de064b1cb906427a13a77d47/0405da1a5b3d4dea96cf532851eb7e1f.jpeg",
-    updated: "Oct 22, 2023",
-  },
-  {
-    id: 3,
-    name: "Miku",
-    image:
-      "https://3dmag.org/en/uploads/images/catalog/item/1ba7bb70a5/96e2daab60_500.jpg",
-    updated: "Oct 20, 2023",
-  },
-  {
-    id: 4,
-    name: "Berserk",
-    image:
-      "https://media.sketchfab.com/models/0ad7c8ffbeef4cc196cbd217557fef60/thumbnails/25e170068f864b73bf76816ee4d9cad7/5c85439efe974c6abefd6a2ef6fbf595.jpeg",
-    updated: "Oct 18, 2023",
-  },
-];
-
 export default function Page() {
   const { isLogin, loading } = useAuth();
   const router = useRouter();
@@ -75,8 +43,8 @@ export default function Page() {
 
         <Button
           variant="default"
-          href="/upload"
-          className="shadow-lg shadow-primary/20"
+          // href="/upload"
+          className="shadow-lg shadow-primary/20 cursor-not-allowed"
         >
           <ArrowUp className="w-4 h-4 mr-2" /> Upload New
         </Button>
@@ -118,18 +86,7 @@ export default function Page() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {models.map((model) => (
-          <ModelCard
-            key={model.id}
-            id={model.id}
-            name={model.name}
-            image={model.image}
-            updatedAt={model.updated}
-            status="ready"
-          />
-        ))}
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </main>
   );
 }
