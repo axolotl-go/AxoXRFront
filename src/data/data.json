@@ -2,7 +2,7 @@
 "nav" : [
   {
     "linkName": "Home",
-    "link": "/",
+    "link": "/dashboard",
     "icon": "House"
   },
   {
